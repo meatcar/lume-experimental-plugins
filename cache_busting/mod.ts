@@ -1,6 +1,6 @@
 import binaryLoader from "lume/core/loaders/binary.ts";
-import { getPathAndExtension, merge } from "lume/core/utils.ts";
-import { encode } from "lume/deps/hex.ts";
+import { getPathAndExtension } from "lume/core/utils/path.ts";
+import { encodeHex } from "lume/deps/hex.ts";
 import { posix } from "lume/deps/path.ts";
 import modifyUrls from "lume/plugins/modify_urls.ts";
 
@@ -25,7 +25,7 @@ const cache = new Map<string, Promise<string>>();
 
 /** A plugin to add cache busting hashes to all URLs found in HTML documents. */
 export default function (userOptions?: Partial<Options>): Plugin {
-  const options = merge(defaults, userOptions);
+  const options = Object.assign(defaults, userOptions);
 
   return (site: Site) => {
     const selector = `[${options.attribute}]`;
@@ -104,7 +104,7 @@ export default function (userOptions?: Partial<Options>): Plugin {
 
     async function getContentHash(content: Uint8Array): Promise<string> {
       const hashBuffer = await crypto.subtle.digest("SHA-1", content);
-      const hex = encode(new Uint8Array(hashBuffer));
+      const hex = encodeHex(new Uint8Array(hashBuffer));
       const hash = new TextDecoder().decode(hex);
       return hash.substring(0, options.hashLength);
     }
